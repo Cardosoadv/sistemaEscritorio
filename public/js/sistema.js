@@ -1,4 +1,7 @@
 console.log("leu JS");
+var siteUrl = "http://localhost/sistema";
+
+
 //formata o valor para o padrão brasileiro
 function formataValor(valor){
         var valorBr = valor.replace(".", ",");
@@ -22,9 +25,10 @@ class Tarefas {
         console.log("Class Tarefas");
         this.form = document.getElementById('form_tarefa');
         this.modal = document.getElementById('modal_tarefa');
-        this.urlEditarTarefa = "https://fabianocardoso.adv.br/sistema/tarefas/ajax_editar_tarefa";
-        this.urlResponsaveis = "https://fabianocardoso.adv.br/sistema/tarefas/ajax_responsaveis";
-        this.urlEditar = "https://fabianocardoso.adv.br/sistema/tarefas/editartarefa";
+        this.urlEditarTarefa = "tarefas/ajax_editar_tarefa";
+        this.urlResponsaveis = "tarefas/ajax_responsaveis";
+        this.urlEditar = "tarefas/editartarefa";
+        this.urlAdicionar = "tarefas/salvartarefa";
         this.taskId = document.querySelector('[name="id"]');
         this.taskInput = document.querySelector('[name="task"]');
         this.prazoInput = document.querySelector('[name="prazo"]');
@@ -35,7 +39,7 @@ class Tarefas {
 
     edit(id) {
         this.form.reset();
-        fetch(`${this.urlEditarTarefa}/${id}`)
+        fetch(`${siteUrl}/${this.urlEditarTarefa}/${id}`)
             .then(response => response.json())
             .then(data => {
                 this.taskId.value = data.id;
@@ -43,7 +47,7 @@ class Tarefas {
                 this.prazoInput.value = data.prazo;
                 this.prioridadeInput.value = data.prioridade;
                 this.detalhesInput.value = data.detalhes;
-                return fetch(`${this.urlResponsaveis}/${data.id}`);
+                return fetch(`${siteUrl}/${this.urlResponsaveis}/${data.id}`);
             })
             .then(response => response.json())
             .then(data => {
@@ -59,7 +63,7 @@ class Tarefas {
             .then(response => {
                 $('#modal_tarefa').modal('show');
                 $('.modal-title').text('Editar'); // Set title to Bootstrap modal title
-                document.getElementById('form_tarefa').action = `${this.urlEditar}/${id}`;
+                document.getElementById('form_tarefa').action = `${siteUrl}/${this.urlEditar}/${id}`;
             })
             .catch(error => {
                 console.error(error);
@@ -71,7 +75,7 @@ class Tarefas {
 
         $('#form_tarefa')[0].reset();
         $('.modal-title').text('Nova Tarefa'); // Set title to Bootstrap modal title
-        document.getElementById('form_tarefa').action = "https://fabianocardoso.adv.br/sistema/tarefas/salvartarefa";
+        document.getElementById('form_tarefa').action = `${siteUrl}/${this.urlAdicionar}`;
 
     }
 
@@ -84,7 +88,6 @@ class Despesas {
         console.log("Class Despesas");
 
                 //setando as urls e o modal
-                this.urlBase = "https://fabianocardoso.adv.br/sistema" //seta o url base do sistema
                 this.form = document.getElementById('form_despesa');
                 this.modal = document.getElementById('modal_despesa');
                 this.urlReceberDados = "despesas/ajax_editar_despesa"; //endereço de origem dos dados
@@ -107,7 +110,7 @@ class Despesas {
     }
     edit(id) {
         this.form.reset();
-        fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+        fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
             .then(response => response.json())
             .then(data => {
                 this.despesasIdInput.value = data.despesas_id;
@@ -164,12 +167,11 @@ class Clientes {
         console.log("Class Clientes");
         
         //setando as urls e o modal
-        this.urlBase = "https://fabianocardoso.adv.br/sistema" //seta o url base do sistema
         this.form = document.getElementById('form_cliente');
         this.modal = document.getElementById('#modal_cliente');
-        this.urlEditarCliente = "/clientes/ajax_editar_cliente";
-        this.urlEditar = "/clientes/editar";
-        this.urlAdicionar = "/clientes/adicionar";
+        this.urlEditarCliente = "clientes/ajax_editar_cliente";
+        this.urlEditar = "clientes/editar";
+        this.urlAdicionar = "clientes/adicionar";
         
         //pegar as variáveis do formulário
         this.nomeInput = document.querySelector('[name="nome"]');
@@ -184,15 +186,21 @@ class Clientes {
 
     edit(id) {
         this.form.reset(); //limpando os dados do formulário
-        fetch(`${this.urlBase}/${this.urlEditarCliente}/${id}`) //requisitando os dados por ajax, usando o fetch
+        fetch(`${siteUrl}/${this.urlEditarCliente}/${id}`) //requisitando os dados por ajax, usando o fetch
             .then(response => response.json())
             .then(data => { 
-        
+                console.log(data);
                 //preenchendo os dados do formulário
+                var cpf_cnpj = data.cpf_cnpj;
+                console.log(cpf_cnpj.length);
                 this.nomeInput.value = data.nome;
-                this.cpfInput.value = data.cpf;
-                this.cnpjInput.value = data.cnpj;
+                    if (cpf_cnpj.length===19){
+                        this.cnpjInput.value = cpf_cnpj;
+                    }else{
+                        this.cpfInput.value = cpf_cnpj;
+                    }
                 this.idInput.value = data.id;
+                console.log(this.idInput.value);
                 this.telefoneInput.value = data.telefone;
                 this.dataNascimentoInput.value = data.data_nascimento;
                 this.usernameInput.value = data.username;
@@ -202,7 +210,7 @@ class Clientes {
             .then(response => {
                 $('#modal_cliente').modal('show');
                 $('.modal-title').text('Editar'); // Seta o titulo do modal
-                document.getElementById('form_cliente').action = `${this.urlBase}/${this.urlEditar}/${id}`;
+                document.getElementById('form_cliente').action = `${siteUrl}/${this.urlEditar}/${id}`;
             })
             .catch(error => {
                 console.error(error);
@@ -213,7 +221,7 @@ class Clientes {
     novoCliente() {
         $('#form_cliente')[0].reset();
         $('.modal-title').text('Novo Cliente'); // Set title to Bootstrap modal title
-        document.getElementById('form_cliente').action = `${this.urlBase}/${this.urlAdicionar}`;
+        document.getElementById('form_cliente').action = `${siteUrl}/${this.urlAdicionar}`;
     }
 }
 const clientes = new Clientes();
@@ -244,7 +252,7 @@ class Faturas {
 
     edit(id) {
         this.form.reset(); //limpando os dados do formulário
-        fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+        fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
             .then(response => response.json())
             .then(data => { 
         
@@ -266,7 +274,7 @@ class Faturas {
             .then(response => {
                 $('#modal_fatura').modal('show');
                 $('.modal-title').text('Editar'); // Seta o titulo do modal
-                document.getElementById('form_fatura').action = `${this.urlBase}/${this.urlEditar}/${id}`;
+                document.getElementById('form_fatura').action = `${siteUrl}/${this.urlEditar}/${id}`;
                 document.getElementById('parcelas').setAttribute('disabled','');
             })
             .catch(error => {
@@ -278,7 +286,7 @@ class Faturas {
     novaFatura() {
         $('#form_fatura')[0].reset();
         $('.modal-title').text('Nova Fatura'); // Set title to Bootstrap modal title
-        document.getElementById('form_fatura').action = `${this.urlBase}/${this.urlAdicionar}`;
+        document.getElementById('form_fatura').action = `${siteUrl}/${this.urlAdicionar}`;
     }
     lancarContrato() {
         var x = document.getElementById("lancarContrato");
@@ -335,7 +343,7 @@ class Rubricas {
 
     edit(id) {
         this.form.reset(); //limpando os dados do formulário
-        fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+        fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
             .then(response => response.json())
             .then(data => { 
         
@@ -351,7 +359,7 @@ class Rubricas {
                 this.modal.classList.add('show');
                 this.modal.style.display = 'block';
                 document.querySelector('.modal-title').textContent = 'Editar'; // Seta o titulo do modal
-                this.form.action = `${this.urlBase}/${this.urlEditar}/${id}`;
+                this.form.action = `${siteUrl}/${this.urlEditar}/${id}`;
                 
             })
             .catch(error => {
@@ -364,7 +372,7 @@ class Rubricas {
     {
         this.form.reset(); //limpando os dados do formulário
 
-      fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+      fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
       .then(response => response.json())
       .then(data => {  
           //preenchendo os dados do formulário
@@ -375,7 +383,7 @@ class Rubricas {
         this.modal.classList.add('show');
         this.modal.style.display = 'block';
         document.querySelector('.modal-title').textContent = 'Nova Rubrica'; // Set title to Bootstrap modal title
-        this.form.action = `${this.urlBase}/${this.urlAdicionar}`;
+        this.form.action = `${siteUrl}/${this.urlAdicionar}`;
         })
         .catch(error => {
             console.error(error);
@@ -385,7 +393,7 @@ class Rubricas {
     novaRubrica() {
         this.form.reset(); //limpando os dados do formulário
         document.querySelector('.modal-title').textContent = 'Nova Rubrica'; // Set title to Bootstrap modal title
-        this.form.action = `${this.urlBase}/${this.urlAdicionar}`;
+        this.form.action = `${siteUrl}/${this.urlAdicionar}`;
         this.modal.classList.add('show');
         this.modal.style.display = 'block';
     }
@@ -428,7 +436,7 @@ class Transferencias {
 
     edit(id) {
         this.form.reset(); //limpando os dados do formulário
-        fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+        fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
             .then(response => response.json())
             .then(data => { 
         
@@ -458,7 +466,7 @@ class Transferencias {
     {
         this.form.reset(); //limpando os dados do formulário
 
-      fetch(`${this.urlBase}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
+      fetch(`${siteUrl}/${this.urlReceberDados}/${id}`) //requisitando os dados por ajax, usando o fetch
       .then(response => response.json())
       .then(data => {  
           //preenchendo os dados do formulário
